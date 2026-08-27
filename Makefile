@@ -7,11 +7,11 @@ CFLAGS   = -std=c11 -Wall -Wextra -Werror -I$(RAYLIB)
 LDFLAGS  = -L$(RAYLIB) -Wl,-rpath,'$$ORIGIN/$(RAYLIB)' -lraylib -lm
 SAN      = -fsanitize=address,undefined -fno-omit-frame-pointer
 
-raytracer: main.c
-	$(CC) $(CFLAGS) -g -O0 $(SAN) $< $(LDFLAGS) -o $@
+raytracer: main.c vec3.c vec3.h
+	$(CC) $(CFLAGS) -g -O0 $(SAN) main.c vec3.c $(LDFLAGS) -o $@
 
-release: main.c
-	$(CC) $(CFLAGS) -O2 $< $(LDFLAGS) -o raytracer
+release: main.c vec3.c vec3.h
+	$(CC) $(CFLAGS) -O2 main.c vec3.c $(LDFLAGS) -o raytracer
 
 run: raytracer
 	ASAN_OPTIONS=detect_leaks=0 ./raytracer
