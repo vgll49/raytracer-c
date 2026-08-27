@@ -3,59 +3,52 @@
 #include <stdio.h>
 
 
+#define SCREEN_W 800
+#define SCREEN_H 450
+#define BUFFER_W 400
+#define BUFFER_H 225
 
+int main(void) {
 
+    Color image_buffer [BUFFER_H*BUFFER_W];
 
-int main(void)
-{
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    InitWindow(SCREEN_W, SCREEN_H, "raytracer");
 
-    Vec3 a = {2, 4, 2};
-    Vec3 b = {1, 1, 1};
+    // genImage
+    // LoadTextureFromImage
+    // unload image
+    // update text
+    Image img = GenImageColor(BUFFER_W, BUFFER_H, PINK);
+    Texture text = LoadTextureFromImage(img);
+    UnloadImage(img);
+    for (int j = 0; j < BUFFER_H; j++) {
+        printf("Lines remaining: %d\n", BUFFER_H - j);
+        for(int i = 0; i < BUFFER_W; i++) {
+            float r = (float)j / (BUFFER_H-1);
+            float g = (float)i / (BUFFER_W-1);
 
-    Vec3 c = vec3_sub(a, b);
-    Vec3 a_norm = vec3_normalize(a);
-    Vec3 cross = vec3_cross(a, b);
-    float a_cross = vec3_dot(a, cross);
-    float l_norm = vec3_length(a_norm);
-    printf("x: %.4f, y: %.4f, z %.4f\n", c.x, c.y, c.z);
-    printf("After Normalize: x: %.4f, y: %.4f, z %.4f\n", a_norm.x, a_norm.y, a_norm.z);
-    printf("cross: x: %.4f, y: %.4f, z %.1f\n", cross.x, cross.y, cross.z);
-    printf("dot a and cross is %.4f\n", a_cross);
-    printf("lenght of a is: %.4f\n", vec3_length(a));
-    printf("lenght of b is: %.4f\n", vec3_length(b));
-    printf("l_norm %.4f\n", l_norm);
-    printf("%.2f", sqrtf(0));
-    printf("%.4f", 1.0f/0.0f);
-    printf("%.4f", 0.0f/0.0f);
-    
+            int ri = r * 255;
+            int gi = g * 255;
 
-    InitWindow(screenWidth, screenHeight, "raytracer");
-
-
-
+            // j as row, i as column multipled by buffer to select the row
+            image_buffer[j*BUFFER_W+i] = (Color){.r = ri, .g = gi, .b = 0, .a = 255};
+        }
+    }
     while (!WindowShouldClose())    
     {
 
-        BeginDrawing();
-            ClearBackground(RAYWHITE);
+        BeginDrawing(); 
 
+            ClearBackground(RAYWHITE);
+            UpdateTexture(text, image_buffer);
+            DrawTexture(text, SCREEN_W/2-BUFFER_W/2, SCREEN_H/2-BUFFER_H/2, WHITE);
+            
         EndDrawing();
 
 
     }
+    UnloadTexture(text);
     CloseWindow();        
     
-
     return 0;
 }
-
-/* 
-funcs needed:
- vec3_scale, vec3_mul,
-vec3_dot, vec3_cross,
-vec3_length, vec3_length_sq, vec3_normalize
-
-mul: . Komponentenweise Multiplikation zweier Vektoren — (a.x*b.x, a.y*b.y, a.z*b.z)
-*/

@@ -25,12 +25,10 @@ Vec3 vec3_scale(Vec3 a,  float scale) {
     return (Vec3) {x,y,z};
 }
 
-
 // lighting
 float vec3_dot(Vec3 a, Vec3 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-
 
 // real distance
 float vec3_length(Vec3 a) {
@@ -41,7 +39,6 @@ float vec3_length(Vec3 a) {
 float vec3_length_sq(Vec3 a) {
     return vec3_dot(a, a);
 }
-
 
 Vec3 vec3_normalize(Vec3 a) {
     float length = vec3_length(a);
