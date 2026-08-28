@@ -62,3 +62,8 @@ Vec3 vec3_cross(Vec3 a, Vec3 b) {
 Vec3 vec3_mul(Vec3 a, Vec3 b) {
     return (Vec3){a.x*b.x, a.y*b.y, a.z*b.z};
 }
+
+// helper to print 
+void vec3_print(Vec3 a) {
+    printf("x: %.4f, y: %.4f, z: %.4f\n", a.x, a.y, a.z);
+}
