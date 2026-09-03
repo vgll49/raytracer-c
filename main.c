@@ -15,20 +15,33 @@ typedef struct CRay {
     Vec3 direction;
 } CRay;
 
-bool hit_sphere(Vec3 center, float radius, CRay ray) {
+
+// t is the pos of a point along the ray
+Color3 ray_at(CRay r, float t) {
+    return vec3_add(r.origin, vec3_scale(r.direction, t));
+}
+
+float hit_sphere(Vec3 center, float radius, CRay ray) {
     Vec3 oc = vec3_sub(center, ray.origin);
     float a = vec3_length_sq(ray.direction);
     float b = -2.0f * vec3_dot(ray.direction, oc);
     float c = vec3_length_sq(oc) - radius*radius;
     float discriminant = b*b - 4*a*c;
 
-    return (discriminant >= 0);
+    if(discriminant < 0) {
+        return -1.0;
+    } else {
+        return (-b - sqrt(discriminant))/ (2.0*a);
+    }
 }
 
-Vec3 ray_color(CRay r) {
-    // normalize to look how much the ray points up
-    if (hit_sphere((Vec3){0,0,-1}, 0.5, r)) {
-        return (Vec3){1, 0, 0};
+Color3 calc_ray_color(CRay r) {
+    float t = hit_sphere((Vec3){0,0,-1}, 0.5, r);
+
+    if (t > 0.0) {
+
+        Vec3 N = vec3_normalize(vec3_sub(ray_at(r, t), (Vec3){0,0,-1}));
+        return vec3_scale(vec3_add(N, (Vec3){1,1,1}), 0.5f);
     }
 
     Vec3 norm_dir = vec3_normalize(r.direction);
@@ -55,7 +68,7 @@ unsigned char f_scale_and_clamp_to_char(float f) {
     }
 }
 
-Color coloray(Vec3 ray_color) {
+Color set_ray_color(Color3 ray_color) {
    
 
 
@@ -69,10 +82,6 @@ Color coloray(Vec3 ray_color) {
 
 
 
-// t is the pos of a point along the ray
-Vec3 ray_at(CRay r, float t) {
-    return vec3_add(r.origin, vec3_scale(r.direction, t));
-}
 /*
 Calculate the ray from the “eye” through the pixel,
 Determine which objects the ray intersects, and
@@ -128,20 +137,24 @@ int main(void) {
         for(int i = 0; i < (int)BUFFER_W; i++) {
 
             Vec3 pixel_center = vec3_add(pixel00_location, vec3_add(vec3_scale(pixel_delta_u, i),  vec3_scale(pixel_delta_v, j)));
+
+            // center - origin
             Vec3 ray_direction = vec3_sub(pixel_center, camera_center);
 
+            // ray from origin to direction
             CRay ray  = {camera_center, ray_direction};
             
 
+            // debug
             if (i == 1 && j == 1) vec3_print(ray.direction), vec3_print(ray.origin);
             if (i == BUFFER_W/2 && j == BUFFER_H/2) vec3_print(ray.direction), vec3_print(ray.origin);
             if (i == BUFFER_W-1 && j == BUFFER_H -1) vec3_print(ray.direction), vec3_print(ray.origin);
                 
-
-            Vec3 rc = ray_color(ray);
+            // get color for every ray
+            Color3 r_color = calc_ray_color(ray);
             
             // j as row, i as column multipled by buffer to select the row
-            image_buffer[j*(int)BUFFER_W+(int)i] = coloray(rc);
+            image_buffer[j*(int)BUFFER_W+(int)i] = set_ray_color(r_color);
         }
     }
     while (!WindowShouldClose())    

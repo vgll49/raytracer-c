@@ -13,6 +13,8 @@ typedef struct Vec3 {
     float z;
 } Vec3;
 
+// typealias for coloration due to readability
+typedef Vec3 Color3;
 
 Vec3 vec3_add(Vec3 a, Vec3 b);
 Vec3 vec3_sub(Vec3 a, Vec3 b);
