@@ -1,7 +1,6 @@
 #ifndef VEC3_H
 #define VEC3_H
 
-
 #include <math.h>
 #define EPS 1e-8f
 #include <assert.h>

@@ -9,7 +9,6 @@ typedef struct Sphere {
     float radius;
 } Sphere;
 
-
 float hit_sphere(Sphere sphere, CRay ray);
 
 #endif
