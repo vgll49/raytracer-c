@@ -10,7 +10,7 @@ void camera_init(RTCamera *camera){
     float f_image_height = (float)camera->image_height;
     
     // Viewport dimensions
-    float focal_l = 1.0;
+    float focal_l = 1.0; // distance between camera center and viewport
     float viewport_h = 2.0f;
     float viewport_w = viewport_h * (f_image_width/f_image_height);
     // orin of all scene rays
@@ -28,6 +28,8 @@ void camera_init(RTCamera *camera){
     Vec3 viewport_center = vec3_sub(camera->camera_center, (Vec3){0,0, focal_l});
     Vec3 half_u = vec3_scale(viewport_u, 0.5f);
     Vec3 half_v = vec3_scale(viewport_v, 0.5f);
+
+    // viewport top left 
     Vec3 camera_left = vec3_sub(viewport_center, vec3_add(half_u, half_v));
 
     // middle of the camera left pixel, used to calculate other pixel locations
@@ -64,14 +66,19 @@ void camera_render(RTCamera *camera, const Sphere sp, Color *image_buffer) {
 
 Color3 calc_ray_color(CRay r, const Sphere s) {
 
+    // intersection point of the ray wehre it hits the sphere (e.g t=2.3) t>0 -> hit before 
     float t = hit_sphere(s, r);
 
+    // hit before camera
     if (t > 0.0) {
 
+        // unit vector of the surface normal
         Vec3 N = vec3_normalize(vec3_sub(ray_at(r, t), s.center));
+
         return vec3_scale(vec3_add(N, (Vec3){1,1,1}), 0.5f);
     }
 
+    // not hit, blue/white "sky" coloration
     Vec3 norm_dir = vec3_normalize(r.direction);
 
     // 0 to 1
