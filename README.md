@@ -7,3 +7,5 @@
 ![first_sphere](images/first_sphere.jpg?raw=true "first_sphere")
 
 ![surface_normals](images/surface_normals.jpg?raw=true "surface_normals")
+
+![normal_ground](images/normal_ground.jpg?raw=true "normal_ground")

@@ -3,8 +3,7 @@
 void camera_init(RTCamera *camera){
     
     camera->image_height = (int)(camera->image_width/camera->aspect_ratio);
-    printf("IMAGE WIDTH is %d", camera->image_width);
-    printf("image height is: %d", camera->image_height);
+    if (camera->image_height < 1) camera->image_height = 1;
 
     float f_image_width = (float)camera->image_width;
     float f_image_height = (float)camera->image_height;
@@ -36,7 +35,7 @@ void camera_init(RTCamera *camera){
     camera->pixel00_location =  vec3_add(vec3_add(camera_left, vec3_scale(camera->pixel_delta_u, 0.5f)),vec3_scale(camera->pixel_delta_v, 0.5f));
 }
 
-void camera_render(RTCamera *camera, const Sphere sp, Color *image_buffer) {
+void camera_render(RTCamera *camera, const HittableList *world, Color *image_buffer) {
     for (int j = 0; j < camera->image_height; j++) {
         //printf("Lines remaining: %d\n", camera->image_height - j);
 
@@ -50,13 +49,8 @@ void camera_render(RTCamera *camera, const Sphere sp, Color *image_buffer) {
             // ray from origin to direction
             CRay ray  = {camera->camera_center, ray_direction};
             
-            // TODO: DEBUG; REMOVE LATER
-            if (i == 1 && j == 1) vec3_print(ray.direction), vec3_print(ray.origin);
-            if (i == camera->image_width/2 && j == camera->image_height/2) vec3_print(ray.direction), vec3_print(ray.origin);
-            if (i == camera->image_width-1 && j == camera->image_height -1) vec3_print(ray.direction), vec3_print(ray.origin);
-                
             // get color for every ray
-            Color3 r_color = calc_ray_color(ray, sp);
+            Color3 r_color = calc_ray_color(ray, world);
             
             // j as row, i as column multipled by buffer to select the row
             image_buffer[j*camera->image_width+(int)i] = set_ray_color(r_color);
@@ -64,18 +58,10 @@ void camera_render(RTCamera *camera, const Sphere sp, Color *image_buffer) {
     }
 }
 
-Color3 calc_ray_color(CRay r, const Sphere s) {
-
-    // intersection point of the ray wehre it hits the sphere (e.g t=2.3) t>0 -> hit before 
-    float t = hit_sphere(s, r);
-
-    // hit before camera
-    if (t > 0.0) {
-
-        // unit vector of the surface normal
-        Vec3 N = vec3_normalize(vec3_sub(ray_at(r, t), s.center));
-
-        return vec3_scale(vec3_add(N, (Vec3){1,1,1}), 0.5f);
+Color3 calc_ray_color(CRay r, const HittableList *world) {
+    HitRecord record;
+    if (hittable_list_hit(world, r, 0.001f, INFINITY, &record)) {
+        return vec3_scale(vec3_add(record.normal, (Vec3){1,1,1}), 0.5f);
     }
 
     // not hit, blue/white "sky" coloration

@@ -3,7 +3,7 @@
 
 #include "vec3.h"
 #include "ray.h"
-#include "sphere.h"
+#include "hittable.h"
 
 typedef struct RTCamera {
     float aspect_ratio;  // Ratio of image width over height
@@ -16,7 +16,7 @@ typedef struct RTCamera {
 
 } RTCamera;
 
-Color3 calc_ray_color(CRay r, Sphere s);
+Color3 calc_ray_color(CRay r, const HittableList *world);
 void camera_init(RTCamera *camera); // move init stuff here
-void camera_render(RTCamera *camera, Sphere sp, Color *image_buffer); // move lmaioop in here, pass union of objects to render in here
+void camera_render(RTCamera *camera, const HittableList *world, Color *image_buffer);
 #endif
