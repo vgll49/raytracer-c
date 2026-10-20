@@ -97,6 +97,15 @@ Vec3 vec3_reflect(Vec3 direction, Vec3 normal) {
     return vec3_sub(direction, vec3_scale(normal, 2.0f * vec3_dot(direction, normal)));
 }
 
+Vec3 vec3_refract(Vec3 unit_direction, Vec3 normal, float eta_ratio) {
+    float cos_theta = fminf(vec3_dot(vec3_scale(unit_direction, -1.0f), normal), 1.0f);
+    Vec3 perpendicular = vec3_scale(
+        vec3_add(unit_direction, vec3_scale(normal, cos_theta)), eta_ratio);
+    float parallel_length = sqrtf(fabsf(1.0f - vec3_length_sq(perpendicular)));
+    Vec3 parallel = vec3_scale(normal, -parallel_length);
+    return vec3_add(perpendicular, parallel);
+}
+
 bool vec3_near_zero(Vec3 value) {
     return fabsf(value.x) < EPS && fabsf(value.y) < EPS && fabsf(value.z) < EPS;
 }

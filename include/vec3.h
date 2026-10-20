@@ -32,6 +32,7 @@ Vec3 vec3_random_in_unit_sphere(void);
 Vec3 vec3_random_unit_vector(void);
 Vec3 vec3_random_on_hemisphere(Vec3 normal);
 Vec3 vec3_reflect(Vec3 direction, Vec3 normal);
+Vec3 vec3_refract(Vec3 unit_direction, Vec3 normal, float eta_ratio);
 bool vec3_near_zero(Vec3 value);
 void vec3_print(Vec3 a);
 #endif

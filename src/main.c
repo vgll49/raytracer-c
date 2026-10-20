@@ -14,12 +14,14 @@ int main(void) {
     hittable_list_init(&world);
     RTMaterial ground = material_diffuse((Color3){0.8f, 0.8f, 0.0f});
     RTMaterial center = material_diffuse((Color3){0.1f, 0.2f, 0.5f});
-    RTMaterial left_metal = material_metal((Color3){0.8f, 0.8f, 0.8f}, 0.3f);
-    RTMaterial right_metal = material_metal((Color3){0.8f, 0.6f, 0.2f}, 1.0f);
+    RTMaterial left_glass = material_dielectric(1.5f);
+    RTMaterial inner_air = material_dielectric(1.0f / 1.5f);
+    RTMaterial right_metal = material_metal((Color3){0.8f, 0.6f, 0.2f}, 0.0f);
 
     if (!hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){0.0f,-100.5f,-1.0f}, 100.0f}, ground)) ||
         !hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){0.0f,0.0f,-1.2f}, 0.5f}, center)) ||
-        !hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){-1.0f,0.0f,-1.0f}, 0.5f}, left_metal)) ||
+        !hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){-1.0f,0.0f,-1.0f}, 0.5f}, left_glass)) ||
+        !hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){-1.0f,0.0f,-1.0f}, 0.4f}, inner_air)) ||
         !hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){1.0f,0.0f,-1.0f}, 0.5f}, right_metal))) {
         hittable_list_destroy(&world);
         return 1;

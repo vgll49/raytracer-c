@@ -93,7 +93,7 @@ Color3 calc_ray_color(CRay r, const HittableList *world, int depth) {
     if (hittable_list_hit(world, r, RAY_T_MIN, INFINITY, &record)) {
         CRay scattered;
         Color3 attenuation;
-        if (material_scatter(&record.material, r, record.point, record.normal,
+        if (material_scatter(&record.material, r, record.point, record.normal, record.front_face,
                              &scattered, &attenuation)) {
             Color3 bounced_color = calc_ray_color(scattered, world, depth - 1);
             return vec3_mul(attenuation, bounced_color);
