@@ -5,8 +5,8 @@ RAYLIB_WEB = ../raylib-web/src
 SRCDIR = src
 INCDIR = include
 
-SRCS = $(SRCDIR)/main.c $(SRCDIR)/vec3.c $(SRCDIR)/ray.c $(SRCDIR)/sphere.c $(SRCDIR)/hittable.c $(SRCDIR)/camera.c
-HDRS = $(INCDIR)/vec3.h $(INCDIR)/ray.h $(INCDIR)/sphere.h $(INCDIR)/hittable.h $(INCDIR)/camera.h
+SRCS = $(SRCDIR)/main.c $(SRCDIR)/vec3.c $(SRCDIR)/ray.c $(SRCDIR)/random.c $(SRCDIR)/sphere.c $(SRCDIR)/hittable.c $(SRCDIR)/camera.c
+HDRS = $(INCDIR)/vec3.h $(INCDIR)/ray.h $(INCDIR)/random.h $(INCDIR)/sphere.h $(INCDIR)/hittable.h $(INCDIR)/camera.h
 
 CFLAGS  = -std=c11 -Wall -Wextra -Werror -I$(RAYLIB) -I$(INCDIR)
 LDFLAGS = -L$(RAYLIB) -Wl,-rpath,'$$ORIGIN/$(RAYLIB)' -lraylib -lm

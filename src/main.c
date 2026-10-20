@@ -1,11 +1,15 @@
 #include "raylib.h"
 #include "sphere.h"
 #include "camera.h"
+#include <stdlib.h>
+#include <time.h>
 #define SCREEN_W 800
 #define SCREEN_H 450
 
 void draw_scene(void *pixels, int width, int height);
 int main(void) {
+    srand((unsigned int)time(NULL));
+
     HittableList world;
     hittable_list_init(&world);
     if (!hittable_list_add(&world, hittable_sphere((Sphere){(Vec3){0,0,-1}, 0.5f})) ||
@@ -18,6 +22,7 @@ int main(void) {
 
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width = 800;
+    cam.samples_per_pixel = 100;
 
     // init cam struct
     camera_init(&cam);

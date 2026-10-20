@@ -1,7 +1,31 @@
 #include "camera.h"
+#include "random.h"
+
+#include <stdio.h>
+
+static Vec3 sample_square(void) {
+    return (Vec3){
+        (float)random_double_range(-0.5, 0.5),
+        (float)random_double_range(-0.5, 0.5),
+        0.0f
+    };
+}
+
+static CRay camera_get_ray(const RTCamera *camera, int i, int j) {
+    Vec3 offset = sample_square();
+    Vec3 pixel_sample = vec3_add(
+        camera->pixel00_location,
+        vec3_add(
+            vec3_scale(camera->pixel_delta_u, (float)i + offset.x),
+            vec3_scale(camera->pixel_delta_v, (float)j + offset.y)
+        )
+    );
+
+    return (CRay){camera->camera_center, vec3_sub(pixel_sample, camera->camera_center)};
+}
 
 void camera_init(RTCamera *camera){
-    
+    if (camera->samples_per_pixel < 1) camera->samples_per_pixel = 1;
     camera->image_height = (int)(camera->image_width/camera->aspect_ratio);
     if (camera->image_height < 1) camera->image_height = 1;
 
@@ -36,26 +60,26 @@ void camera_init(RTCamera *camera){
 }
 
 void camera_render(RTCamera *camera, const HittableList *world, Color *image_buffer) {
+    if (camera->samples_per_pixel < 1) return;
+
     for (int j = 0; j < camera->image_height; j++) {
-        //printf("Lines remaining: %d\n", camera->image_height - j);
+        fprintf(stderr, "\rScanlines remaining: %d ", camera->image_height - j);
+        fflush(stderr);
 
         for(int i = 0; i < camera->image_width; i++) {
+            Color3 pixel_color = {0.0f, 0.0f, 0.0f};
+            for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
+                CRay ray = camera_get_ray(camera, i, j);
+                pixel_color = vec3_add(pixel_color, calc_ray_color(ray, world));
+            }
 
-            Vec3 pixel_center = vec3_add(camera->pixel00_location, vec3_add(vec3_scale(camera->pixel_delta_u, i),  vec3_scale(camera->pixel_delta_v, j)));
-
-            // center - origin
-            Vec3 ray_direction = vec3_sub(pixel_center, camera->camera_center);
-
-            // ray from origin to direction
-            CRay ray  = {camera->camera_center, ray_direction};
-            
-            // get color for every ray
-            Color3 r_color = calc_ray_color(ray, world);
-            
-            // j as row, i as column multipled by buffer to select the row
-            image_buffer[j*camera->image_width+(int)i] = set_ray_color(r_color);
+            float sample_scale = 1.0f / (float)camera->samples_per_pixel;
+            pixel_color = vec3_scale(pixel_color, sample_scale);
+            image_buffer[j * camera->image_width + i] = set_ray_color(pixel_color);
         }
     }
+
+    fprintf(stderr, "\rDone.                 \n");
 }
 
 Color3 calc_ray_color(CRay r, const HittableList *world) {
