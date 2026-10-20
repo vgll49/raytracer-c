@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "sphere.h"
+#include "material.h"
 
 typedef enum HittableType {
     HITTABLE_SPHERE
@@ -14,6 +15,7 @@ typedef struct HitRecord {
     Vec3 normal;       // Always points against the incoming ray.
     float t;
     bool front_face;
+    RTMaterial material;
 } HitRecord;
 
 typedef struct Hittable {
@@ -21,6 +23,7 @@ typedef struct Hittable {
     union {
         Sphere sphere;
     } shape;
+    RTMaterial material;
 } Hittable;
 
 typedef struct HittableList {
@@ -36,8 +39,12 @@ bool hittable_list_add(HittableList *list, Hittable object);
 bool hittable_list_hit(const HittableList *list, CRay ray, float t_min, float t_max, HitRecord *record);
 void hittable_list_destroy(HittableList *list);
 
-static inline Hittable hittable_sphere(Sphere sphere) {
-    Hittable object = {.type = HITTABLE_SPHERE, .shape.sphere = sphere};
+static inline Hittable hittable_sphere(Sphere sphere, RTMaterial material) {
+    Hittable object = {
+        .type = HITTABLE_SPHERE,
+        .shape.sphere = sphere,
+        .material = material
+    };
     return object;
 }
 

@@ -1,5 +1,6 @@
 
 #include "vec3.h"
+#include "random.h"
 
 Vec3 vec3_add(Vec3 a, Vec3 b) {
     float x = a.x + b.x;
@@ -61,6 +62,43 @@ Vec3 vec3_cross(Vec3 a, Vec3 b) {
 // coloration
 Vec3 vec3_mul(Vec3 a, Vec3 b) {
     return (Vec3){a.x*b.x, a.y*b.y, a.z*b.z};
+}
+
+Vec3 vec3_random(void) {
+    return (Vec3){(float)random_double(), (float)random_double(), (float)random_double()};
+}
+
+Vec3 vec3_random_range(float min, float max) {
+    return (Vec3){
+        (float)random_double_range(min, max),
+        (float)random_double_range(min, max),
+        (float)random_double_range(min, max)
+    };
+}
+
+Vec3 vec3_random_in_unit_sphere(void) {
+    for (;;) {
+        Vec3 point = vec3_random_range(-1.0f, 1.0f);
+        float length_squared = vec3_length_sq(point);
+        if (length_squared < 1.0f && length_squared > EPS) return point;
+    }
+}
+
+Vec3 vec3_random_unit_vector(void) {
+    return vec3_normalize(vec3_random_in_unit_sphere());
+}
+
+Vec3 vec3_random_on_hemisphere(Vec3 normal) {
+    Vec3 direction = vec3_random_unit_vector();
+    return vec3_dot(direction, normal) > 0.0f ? direction : vec3_scale(direction, -1.0f);
+}
+
+Vec3 vec3_reflect(Vec3 direction, Vec3 normal) {
+    return vec3_sub(direction, vec3_scale(normal, 2.0f * vec3_dot(direction, normal)));
+}
+
+bool vec3_near_zero(Vec3 value) {
+    return fabsf(value.x) < EPS && fabsf(value.y) < EPS && fabsf(value.z) < EPS;
 }
 
 // helper to print 

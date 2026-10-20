@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define RAY_T_MIN 0.001f
+
 static Vec3 sample_square(void) {
     return (Vec3){
         (float)random_double_range(-0.5, 0.5),
@@ -70,7 +72,7 @@ void camera_render(RTCamera *camera, const HittableList *world, Color *image_buf
             Color3 pixel_color = {0.0f, 0.0f, 0.0f};
             for (int sample = 0; sample < camera->samples_per_pixel; sample++) {
                 CRay ray = camera_get_ray(camera, i, j);
-                pixel_color = vec3_add(pixel_color, calc_ray_color(ray, world));
+                pixel_color = vec3_add(pixel_color, calc_ray_color(ray, world, camera->max_depth));
             }
 
             float sample_scale = 1.0f / (float)camera->samples_per_pixel;
@@ -82,10 +84,21 @@ void camera_render(RTCamera *camera, const HittableList *world, Color *image_buf
     fprintf(stderr, "\rDone.                 \n");
 }
 
-Color3 calc_ray_color(CRay r, const HittableList *world) {
+Color3 calc_ray_color(CRay r, const HittableList *world, int depth) {
+    if (depth <= 0) return (Color3){0.0f, 0.0f, 0.0f};
+
     HitRecord record;
-    if (hittable_list_hit(world, r, 0.001f, INFINITY, &record)) {
-        return vec3_scale(vec3_add(record.normal, (Vec3){1,1,1}), 0.5f);
+    // Ignore intersections extremely close to the origin to avoid re-hitting the surface
+    // that produced a scattered ray (shadow acne).
+    if (hittable_list_hit(world, r, RAY_T_MIN, INFINITY, &record)) {
+        CRay scattered;
+        Color3 attenuation;
+        if (material_scatter(&record.material, r, record.point, record.normal,
+                             &scattered, &attenuation)) {
+            Color3 bounced_color = calc_ray_color(scattered, world, depth - 1);
+            return vec3_mul(attenuation, bounced_color);
+        }
+        return (Color3){0.0f, 0.0f, 0.0f};
     }
 
     // not hit, blue/white "sky" coloration

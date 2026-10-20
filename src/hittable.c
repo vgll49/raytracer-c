@@ -16,6 +16,7 @@ bool hittable_hit(const Hittable *object, CRay ray, float t_min, float t_max, Hi
                 return false;
             }
             hittable_set_face_normal(record, ray, outward_normal);
+            record->material = object->material;
             return true;
         }
     }

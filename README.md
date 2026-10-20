@@ -9,3 +9,10 @@
 ![surface_normals](images/surface_normals.jpg?raw=true "surface_normals")
 
 ![normal_ground](images/normal_ground.jpg?raw=true "normal_ground")
+
+![diffuse](images/diffuse.jpg?raw=true "diffuse")
+
+![gamma_corrected](images/gamma_corrected.jpg?raw=true "gamma_corrected")
+
+![fuzz](images/fuzz.jpg?raw=true "fuzz")
+

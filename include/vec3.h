@@ -2,6 +2,7 @@
 #define VEC3_H
 
 #include <math.h>
+#include <stdbool.h>
 #define EPS 1e-8f
 #include <assert.h>
 #include <stdio.h>
@@ -25,5 +26,12 @@ float vec3_length_sq(Vec3 a);
 Vec3 vec3_normalize(Vec3 a);
 Vec3 vec3_cross(Vec3 a, Vec3 b);
 Vec3 vec3_mul(Vec3 a, Vec3 b);
+Vec3 vec3_random(void);
+Vec3 vec3_random_range(float min, float max);
+Vec3 vec3_random_in_unit_sphere(void);
+Vec3 vec3_random_unit_vector(void);
+Vec3 vec3_random_on_hemisphere(Vec3 normal);
+Vec3 vec3_reflect(Vec3 direction, Vec3 normal);
+bool vec3_near_zero(Vec3 value);
 void vec3_print(Vec3 a);
 #endif

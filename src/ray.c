@@ -19,10 +19,14 @@ unsigned char f_scale_and_clamp_to_char(float f) {
 }
 
 Color set_ray_color(Color3 ray_color) {
-   
-    unsigned char r =  f_scale_and_clamp_to_char(ray_color.x);
-    unsigned char g =  f_scale_and_clamp_to_char(ray_color.y);
-    unsigned char b =  f_scale_and_clamp_to_char(ray_color.z);
+    // Convert linear light intensity to approximate gamma-2 display values.
+    float r_gamma = ray_color.x > 0.0f ? sqrtf(ray_color.x) : 0.0f;
+    float g_gamma = ray_color.y > 0.0f ? sqrtf(ray_color.y) : 0.0f;
+    float b_gamma = ray_color.z > 0.0f ? sqrtf(ray_color.z) : 0.0f;
+
+    unsigned char r = f_scale_and_clamp_to_char(r_gamma);
+    unsigned char g = f_scale_and_clamp_to_char(g_gamma);
+    unsigned char b = f_scale_and_clamp_to_char(b_gamma);
 
     return (Color){r, g, b, 255};
 
