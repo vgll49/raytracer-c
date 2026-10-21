@@ -29,6 +29,7 @@ Vec3 vec3_mul(Vec3 a, Vec3 b);
 Vec3 vec3_random(void);
 Vec3 vec3_random_range(float min, float max);
 Vec3 vec3_random_in_unit_sphere(void);
+Vec3 vec3_random_in_unit_disk(void);
 Vec3 vec3_random_unit_vector(void);
 Vec3 vec3_random_on_hemisphere(Vec3 normal);
 Vec3 vec3_reflect(Vec3 direction, Vec3 normal);

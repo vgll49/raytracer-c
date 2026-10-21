@@ -13,6 +13,13 @@ static Vec3 sample_square(void) {
     };
 }
 
+static Point3 camera_defocus_disk_sample(const RTCamera *camera) {
+    Vec3 disk_point = vec3_random_in_unit_disk();
+    return vec3_add(camera->camera_center,
+                    vec3_add(vec3_scale(camera->defocus_disk_u, disk_point.x),
+                             vec3_scale(camera->defocus_disk_v, disk_point.y)));
+}
+
 static CRay camera_get_ray(const RTCamera *camera, int i, int j) {
     Vec3 offset = sample_square();
     Vec3 pixel_sample = vec3_add(
@@ -23,7 +30,10 @@ static CRay camera_get_ray(const RTCamera *camera, int i, int j) {
         )
     );
 
-    return (CRay){camera->camera_center, vec3_sub(pixel_sample, camera->camera_center)};
+    Point3 ray_origin = camera->defocus_angle <= 0.0f
+        ? camera->camera_center
+        : camera_defocus_disk_sample(camera);
+    return (CRay){ray_origin, vec3_sub(pixel_sample, ray_origin)};
 }
 
 void camera_init(RTCamera *camera){
@@ -33,24 +43,25 @@ void camera_init(RTCamera *camera){
 
     float f_image_width = (float)camera->image_width;
     float f_image_height = (float)camera->image_height;
-    
-    // Viewport dimensions
-    float focal_l = 1.0; // distance between camera center and viewport
-    float viewport_h = 2.0f;
-    float viewport_w = viewport_h * (f_image_width/f_image_height);
-    // orin of all scene rays
-    camera->camera_center = (Point3){0,0,0};
 
-    // Calculate the vector across the horizontal and down the vertical viewport edges
-    Vec3 viewport_u = {viewport_w, 0, 0};
-    Vec3 viewport_v = {0, -viewport_h, 0};
-    
-    // Calculate the horizontal and vertical delta vectors from pixel to pixel
-    camera->pixel_delta_u = vec3_scale(viewport_u, 1.0f/f_image_width);
-    camera->pixel_delta_v = vec3_scale(viewport_v, 1.0f/f_image_height);
+    camera->camera_center = camera->lookfrom;
+    float focus_dist = camera->focus_dist;
+    float theta = camera->vfov * (float)(acos(-1.0) / 180.0);
+    float viewport_h = 2.0f * tanf(theta * 0.5f) * focus_dist;
+    float viewport_w = viewport_h * (f_image_width / f_image_height);
 
-    // calc camera left
-    Vec3 viewport_center = vec3_sub(camera->camera_center, (Vec3){0,0, focal_l});
+    // Build an orthonormal coordinate frame for the camera.
+    camera->camera_w = vec3_normalize(vec3_sub(camera->lookfrom, camera->lookat));
+    camera->camera_u = vec3_normalize(vec3_cross(camera->vup, camera->camera_w));
+    camera->camera_v = vec3_cross(camera->camera_w, camera->camera_u);
+
+    Vec3 viewport_u = vec3_scale(camera->camera_u, viewport_w);
+    Vec3 viewport_v = vec3_scale(camera->camera_v, -viewport_h);
+    camera->pixel_delta_u = vec3_scale(viewport_u, 1.0f / f_image_width);
+    camera->pixel_delta_v = vec3_scale(viewport_v, 1.0f / f_image_height);
+
+    Vec3 viewport_center = vec3_sub(camera->camera_center,
+                                    vec3_scale(camera->camera_w, focus_dist));
     Vec3 half_u = vec3_scale(viewport_u, 0.5f);
     Vec3 half_v = vec3_scale(viewport_v, 0.5f);
 
@@ -59,6 +70,11 @@ void camera_init(RTCamera *camera){
 
     // middle of the camera left pixel, used to calculate other pixel locations
     camera->pixel00_location =  vec3_add(vec3_add(camera_left, vec3_scale(camera->pixel_delta_u, 0.5f)),vec3_scale(camera->pixel_delta_v, 0.5f));
+
+    float defocus_radius = focus_dist * tanf(
+        camera->defocus_angle * (float)(acos(-1.0) / 360.0));
+    camera->defocus_disk_u = vec3_scale(camera->camera_u, defocus_radius);
+    camera->defocus_disk_v = vec3_scale(camera->camera_v, defocus_radius);
 }
 
 void camera_render(RTCamera *camera, const HittableList *world, Color *image_buffer) {
@@ -89,7 +105,7 @@ Color3 calc_ray_color(CRay r, const HittableList *world, int depth) {
 
     HitRecord record;
     // Ignore intersections extremely close to the origin to avoid re-hitting the surface
-    // that produced a scattered ray (shadow acne).
+    // that produced a scattered ray (shadow acne)
     if (hittable_list_hit(world, r, RAY_T_MIN, INFINITY, &record)) {
         CRay scattered;
         Color3 attenuation;
@@ -101,7 +117,7 @@ Color3 calc_ray_color(CRay r, const HittableList *world, int depth) {
         return (Color3){0.0f, 0.0f, 0.0f};
     }
 
-    // not hit, blue/white "sky" coloration
+    // not hit, blue/white sky coloration
     Vec3 norm_dir = vec3_normalize(r.direction);
 
     // 0 to 1

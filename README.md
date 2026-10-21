@@ -1,5 +1,15 @@
-# Current State: 
+# Ray Tracing in One Weekend (C implementation)
 
+A C port of Peter Shirley's *Ray Tracing in One Weekend*. This project follows the book's progression from basic rays to a full scene, and serves as a foundation for experimenting with CPU multithreading and measuring its impact on render time. Raylib is only used to display the rendered scene in a window. The Threading is implemented along [OSTEPs Threads section](https://ostep.org/).
+
+
+![Final render](images/final_render.jpg?raw=true "Final render")
+
+High-resolution render of the implemented renderer, based on the cover of *Ray Tracing in One Weekend*.[^final_render]
+
+[^final_render]: Rendered with the C implementation of the ray tracer.
+
+# Progression:
 ![fade](/images/fade.jpg?raw=true "fade")
 
 ![sky](/images/sky.jpg?raw=true "sky")

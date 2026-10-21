@@ -84,6 +84,17 @@ Vec3 vec3_random_in_unit_sphere(void) {
     }
 }
 
+Vec3 vec3_random_in_unit_disk(void) {
+    for (;;) {
+        Vec3 point = {
+            (float)random_double_range(-1.0, 1.0),
+            (float)random_double_range(-1.0, 1.0),
+            0.0f
+        };
+        if (vec3_length_sq(point) < 1.0f) return point;
+    }
+}
+
 Vec3 vec3_random_unit_vector(void) {
     return vec3_normalize(vec3_random_in_unit_sphere());
 }
